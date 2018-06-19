@@ -1,28 +1,33 @@
-#' Add together two numbers.
+#' makes ggplot of normal distribution
 #'
-#' @param a left-endpoint
-#' @param b right-endpoint
+#' @param x data point
 #' @return ggplot 2 graph object
 #' @examples
-#' vnorm(b = 1)
-#' vnorm(a = 1.5, fill = "blue", lower.tail = FALSE)
+#' vnorm(x = 1)
+#' vnorm(x = 1.5, fill = "blue", lower.tail = FALSE)
 
-vnorm <- function(a = -3, b = 3, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE, fill = "red"){
+vnorm <- function(x = 0, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE, fill = "red"){
 
   # initialize variables
-  x <- seq(min(a, mean - 3*sd), max(b, mean + 3*sd), 0.01)
-  y <- dnorm(x, mean, sd)
-  df <- data.frame(x,y)
-
   if(lower.tail){
-    shade <- rbind( c(min(x), 0), subset(df, x < b), c(b, 0))
+    xvals <- seq(min(x, mean - 3*sd), max(x, mean + 3*sd), 0.01)
   } else {
-    shade <- rbind( c(a, 0), subset(df, x > a), c(max(x), 0))
+    xvals <- seq(min(x, mean - 3*sd), max(x, mean + 3*sd), 0.01)
   }
 
-  ggplot(df, aes(x, y)) +
+  y <- dnorm(xvals, mean, sd)
+  df <- data.frame(xvals,y)
+
+  if(lower.tail){
+    shade <- rbind( c(min(xvals), 0), subset(df, xvals < x), c(x, 0))
+  } else {
+    shade <- rbind( c(x, 0), subset(df, xvals > x), c(max(xvals), 0))
+  }
+
+  # returns this ggplot object
+  ggplot(df, aes(xvals, y)) +
     geom_line() +
-    geom_polygon(data = shade, aes(x,y), fill = fill) +
+    geom_polygon(data = shade, aes(xvals,y), fill = fill) +
     xlab("x") +
     ylab("probabiliity")
 }
